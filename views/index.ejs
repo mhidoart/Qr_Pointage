@@ -1,8 +1,61 @@
+<script src="/js/profile.js"></script>
 <div id="dashboard" class="full-page-h">
   <h1>Dashboard </h1>
 </div>
 
 <div id="users" class="full-page-h">
   <h1>users</h1>
+  <table class="table table-dark">
+    <thead>
+      <tr>
+        <th scope="col">id</th>
+        <th scope="col">CIN</th>
+        <th scope="col">Nome Complet</th>
+        <th scope="col">Email</th>
+        <th scope="col">Active</th>
+        <th scope="col">Tutor</th>
+        <th scope="col">Action</th>
+
+      </tr>
+    </thead>
+    <tbody>
+      <%users.forEach((user)=>{ %>
+
+
+        <tr>
+          <td>
+            <%=user.id%>
+          </td>
+          <td>
+            <%=user.cin%>
+          </td>
+          <td>
+            <%=user.name%>
+          </td>
+          <td>
+            <%=user.email%>
+          </td>
+          <td id="isActive_<%=user.cin%>">
+            <%= user.isActive ? 'Oui' : 'Non' %>
+          </td>
+
+          <td>
+            <%= user.isTutor ? 'Tutor' : 'Stagaire' %>
+          </td>
+          <td>
+
+            <a class="btn btn-warning" href="/profile?id=<%=user.id%>&cin=<%=user.cin%>"> Modifier</a>
+            <a id="activateProfile_<%=user.cin%>" class="btn  <%= user.isActive? 'btn-danger' : 'btn-primary' %>"
+              onclick="activate_desactivate_profile(event,`<%= user.cin %>`)" href="#">
+              <%= user.isActive? "Désactivé" : "Activé" %>
+            </a>
+
+
+          </td>
+        </tr>
+
+        <% }) %>
+    </tbody>
+  </table>
 
 </div>

@@ -1,0 +1,21 @@
+### auth
+
+POST http://localhost:5000/login
+Content-Type: application/json
+
+{
+"email": "mehdiassbbane@gmail.com",
+"password": "123"
+}
+
+### activate /desactivate user
+
+POST http://localhost:5000/profile_activator
+Content-Type: application/json
+
+{
+    "cin": "CB152244"
+
+}
+### list of users
+GET http://localhost:5000/users

@@ -1,0 +1,63 @@
+<head>
+    <link rel="stylesheet" href="/css/profile.css">
+</head>
+<div class="container">
+    <div class="row">
+        <div class="col-xs-6 px-3" style="min-width: 320px; width: 50%;">
+            <h1 id="register">Ce formulaire permet de mettre à jour un utilisateur
+            </h1><br>
+            <p class="text-center text-danger">
+                <% if (messages.error) { %>
+                    <%= messages.error %>
+                        <% } %>
+            </p>
+
+            <form>
+                <div class="form-group">
+                    <label for="id">Id Utilisateur</label>
+                    <input type="text" name="id" disabled class="form-control" id="id" value="<%= target.id%>">
+                </div>
+                <div class="form-group">
+                    <label for="name">Nom complet</label>
+                    <input type="text" name="name" class="form-control" id="name" placeholder="Enter Nom complet"
+                        value="<%= target.name%>" required>
+                </div>
+                <div class="form-group">
+                    <label for="cin">CIN</label>
+                    <input type="text" name="cin" class="form-control" id="cin" placeholder="Enter CIN"
+                        value="<%= target.cin%>" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" name="email" class="form-control" id="email" placeholder="Enter email"
+                        value="<%= target.email%>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="date">Date creation/update</label>
+                    <input type="text" name="date" class="form-control" disabled id="date"
+                        value="<%= target.dateCreation%>">
+                </div>
+
+                <div class="text-center pt-2">
+                    <button type="submit" class="btn btn-primary">mise à jours</button>
+
+                </div>
+            </form>
+
+
+        </div>
+
+        <div class="col-xs-6 px-3" style="min-width: 320px; width: 50%;">
+            <h1 id="register">Ce formulaire permet de mettre à jour un utilisateur
+            </h1><br>
+
+
+            <div class="qr-container">
+                <img src="/qr/LEREVELANT_zx158246/LEREVELANT_zx158246.png" alt="">
+            </div>
+
+
+        </div>
+    </div>
+</div>

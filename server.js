@@ -11,6 +11,9 @@ const methodOverride = require('method-override')
 const cookieParser = require('cookie-parser')
 const expressLayouts = require('express-ejs-layouts')
 const mysql = require('mysql')
+//controllers
+const QrGenerator = require('./controller/qr_generator.js')
+const qr_generator = new QrGenerator(process.env.URL)
 
 const initializePassport = require('./passport-config')
 initializePassport(
@@ -72,9 +75,9 @@ app.get('/users', (req, res) => res.json(users))
 app.get('/', checkAuthenticated, (req, res) => {
   const profession = req.user.isTutor ? 'Tutor' : 'Stagaire';
 
-  res.render('index', { title: 'Home Page', userName: req.user.name, typeOfUser: profession, layout: './layouts/default' })
+  res.render('index', { title: 'Home Page', users: users, userName: req.user.name, typeOfUser: profession, layout: './layouts/default' })
 })
-
+//auth area
 app.get('/login', checkNotAuthenticated, (req, res) => {
   res.render('login', { title: 'Page Login', layout: './layouts/login-layout' })
 })
@@ -85,6 +88,7 @@ app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
   failureFlash: true
 }))
 
+
 app.get('/register', checkNotAuthenticated, (req, res) => {
   res.render('register', { title: 'register', layout: './layouts/login-layout' })
 })
@@ -92,22 +96,24 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
 app.post('/register', checkNotAuthenticated, async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10)
-    users.push({
+    let st = {
       id: Date.now().toString(),
-      cin: 'CB152244',
+      cin: req.body.cin,
       name: req.body.name,
       email: req.body.email,
       password: hashedPassword,
       isActive: false,
       isTutor: false,
+      qrPath: '',
       dateCreation: new Date()
-    })
+    };
+    qr_generator.generateStagaireQrCode(st);
+    users.push(st)
     res.redirect('/login')
   } catch {
     res.redirect('/register')
   }
 })
-
 app.get('/logout', (req, res) => {
   req.logOut()
   res.redirect('/login')
@@ -127,6 +133,28 @@ function checkNotAuthenticated(req, res, next) {
   }
   next()
 }
+//fin auth area
+//profile area
+app.get('/profile', checkAuthenticated, (req, res) => {
+
+  usr = users.find(user => user.id === req.query.id);
+  console.log("profiile scan");
+  console.log(req);
+  res.render('profile', {
+    title: 'profile', target: usr, userName: req.user.name, typeOfUser: req.user.isTutor ? 'Tutor' : 'Stagaire', layout: './layouts/Default'
+  })
+})
+app.post('/profile_activator', checkAuthenticated, (req, res) => {
+  usr = users.find(user => user.cin === req.body.cin);
+  usr.isActive = !usr.isActive;
+
+  res.json({
+    "isActive": usr.isActive
+  })
+})
+
+//end profile area
+
 
 
 //super admin
@@ -140,6 +168,7 @@ pre_conf = async () => {
     password: hashedPassword,
     isActive: true,
     isTutor: true,
+    qrPath: '',
     dateCreation: new Date()
   })
 }

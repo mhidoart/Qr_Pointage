@@ -2,15 +2,16 @@
 const qr = require("qrcode");
 const fs = require('fs');
 const path = require('path');
+const url = require('url')
 
 
 
 class QrGenerator {
-    url = '';
+    myUrl = '';
     qrRootFolder = '';
 
-    constructor(url) {
-        this.url = url
+    constructor(myUrl) {
+        this.myUrl = new URL(myUrl)
         this.qrRootFolder = path.join(__dirname, '..', '/public', '/Qr')
         console.log('root path ' + this.qrRootFolder);
 
@@ -49,18 +50,29 @@ class QrGenerator {
         console.log('creating folder : ' + currentPath);
         this.createFolder(currentPath);
         //le contenu du qr code ou l'information qui va etre le resulta apres avoir scanner se qrcode
-        let data = stagaire.id + ":" + stagaire.name + ":" + stagaire.cin;
+        let data = new URL(this.myUrl)
+        data.pathname = "profile"
+        data.searchParams.append('id', stagaire.id);
+        data.searchParams.append('cin', stagaire.cin);
 
-        this.saveQrCode(currentPath, qr_name, data);
+        console.log(data);
+        this.saveQrCode(currentPath, qr_name, data.href);
+        stagaire.qrPath = path.join(path.join('/qr', qr_name), qr_name + ".png")
 
         console.log("end generating Qr codes for stagaire: " + qr_name);
 
     }
-
+    saveQrCode(qrPath, qrName, data) {
+        if (!qrName.endsWith(".png")) {
+            qrName = qrName + ".png"
+        }
+        qr.toFile(path.join(qrPath, qrName), data);
+    }
 
 
 
     // a rectifier plus tard
+    /*
     generateQrCodes() {
         let i, j;
         //generate a folder for each session
@@ -80,15 +92,11 @@ class QrGenerator {
         console.log("end generating Qr codes.");
 
     }
-    saveQrCode(qrPath, qrName, data) {
-        if (!qrName.endsWith(".png")) {
-            qrName = qrName + ".png"
-        }
-        qr.toFile(path.join(qrPath, qrName), data);
-    }
+    */
+
 
 }
-
+/*
 qg = new QrGenerator('.');
 
 st = {
@@ -102,3 +110,5 @@ st = {
     dateCreation: new Date()
 };
 qg.generateStagaireQrCode(st);
+*/
+module.exports = QrGenerator;
