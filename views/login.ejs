@@ -1,0 +1,31 @@
+<div id="container">
+  <div id="left">
+    <h4 id="welcome">bienvenue sur<br> pointage QR</h4>
+    <p id="lorem">
+      comment cela fonctionne-t-il ?<br>
+      Le tuteur se connecte et crée une<br> <b>session</b>
+      La session comporte un code Qr <br>
+      public et une liste de stagiaires.<br>
+      chaque stagiaire scanne le code QR public <br>
+      qui lui donne un second code QR <br>
+      <b>personnel et privé</b><br>
+      ce dernier est utilisé pour vérifier que <br>
+      le stagiaire est bien dans la classe. <br>
+    </p>
+  </div>
+  <form id="right" action="/login" method="POST">
+    <h1 id="login">LogIn</h1><br>
+    <p class="text-center text-danger">
+      <% if (messages.error) { %>
+        <%= messages.error %>
+          <% } %>
+    </p>
+    <input type="email" id="email" name="email" class="client-info">
+    <label for="email">Email</label>
+    <input type="password" id="password" name="password" class="client-info">
+    <label for="password">Password</label>
+    <input type="submit" id="submit" class="client-info" value="Login">
+    <input type="button" onclick="register()" class="client-info" value="creer un compte">
+
+  </form>
+</div>
