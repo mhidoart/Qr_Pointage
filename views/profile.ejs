@@ -12,10 +12,12 @@
                         <% } %>
             </p>
 
-            <form>
+            <form action="/update_profile" method="POST">
                 <div class="form-group">
+
                     <label for="id">Id Utilisateur</label>
-                    <input type="text" name="id" disabled class="form-control" id="id" value="<%= target.id%>">
+                    <input type="text" name="id" disabled class="form-control" id="id" value="<%=target.id%>">
+                    <input type="text" name="id" class="d-none" id="id" value="<%=target.id%>">
                 </div>
                 <div class="form-group">
                     <label for="name">Nom complet</label>
@@ -25,7 +27,7 @@
                 <div class="form-group">
                     <label for="cin">CIN</label>
                     <input type="text" name="cin" class="form-control" id="cin" placeholder="Enter CIN"
-                        value="<%= target.cin%>" required>
+                        value="<%=target.cin%>" required>
                 </div>
                 <div class="form-group">
                     <label for="email">Email</label>
@@ -38,7 +40,13 @@
                     <input type="text" name="date" class="form-control" disabled id="date"
                         value="<%= target.dateCreation%>">
                 </div>
-
+                <div class="form-group">
+                    <label for="isActive">compte activé </label>
+                    <select class="form-control" id="isActivate" name="isActive">
+                        <option value="true" <%=target.isActive? 'selected' : '' %> >activé</option>
+                        <option value="false" <%=target.isActive? '' : 'selected' %> >Désactivé</option>
+                    </select>
+                </div>
                 <div class="text-center pt-2">
                     <button type="submit" class="btn btn-primary">mise à jours</button>
 
@@ -48,13 +56,13 @@
 
         </div>
 
-        <div class="col-xs-6 px-3" style="min-width: 320px; width: 50%;">
-            <h1 id="register">Ce formulaire permet de mettre à jour un utilisateur
+        <div class="col-xs-6 px-3 text-center" style="min-width: 320px; width: 50%;">
+            <h1 id="register">Il s'agit du code Qr unique de l'utilisateur qui ne change que si vous modifiez le CIN.
             </h1><br>
 
 
             <div class="qr-container">
-                <img src="/qr/LEREVELANT_zx158246/LEREVELANT_zx158246.png" alt="">
+                <img src="<%= target.qrPath%>" alt="">
             </div>
 
 

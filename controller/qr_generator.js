@@ -57,7 +57,7 @@ class QrGenerator {
 
         console.log(data);
         this.saveQrCode(currentPath, qr_name, data.href);
-        stagaire.qrPath = path.join(path.join('/qr', qr_name), qr_name + ".png")
+        stagaire.qrPath = '/qr/' + qr_name + "/" + qr_name + ".png"
 
         console.log("end generating Qr codes for stagaire: " + qr_name);
 
@@ -68,7 +68,28 @@ class QrGenerator {
         }
         qr.toFile(path.join(qrPath, qrName), data);
     }
+    //session qrCode 
+    generateSessionQrCode(session) {
+        let i, j;
+        console.log("start generating Qr codes .... (for " + session.id + " sessions)  ");
+        var session_folder = path.join(this.qrRootFolder, '/sessions')
+        this.createFolder(session_folder);
 
+
+
+        console.log("saving Qr Code of session in : " + session_folder);
+
+        //le contenu du qr code ou l'information qui va etre le resulta apres avoir scanner se qrcode
+        let data = new URL(this.myUrl)
+        data.pathname = "profile"
+        data.searchParams.append('id', session.id);
+
+        console.log(data);
+        this.saveQrCode(session_folder, session.id, data.href);
+
+        console.log("end generating Qr codes for Session: " + session.id);
+
+    }
 
 
     // a rectifier plus tard

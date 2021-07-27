@@ -90,6 +90,17 @@ background-color: #9055ff;  font-family: sans-serif;
   transition: all 200ms;
   box-shadow: var(--box-shadow);
 }
+.client-info-sans-focus {
+  display: block;
+  margin: 20px auto;
+  width: 60%;
+  height: 50px;
+  border: solid #999 1px;
+  border-radius: 5px;
+  text-indent: 15px;
+  transition: all 200ms;
+  box-shadow: var(--box-shadow);
+}
 .client-info:focus {
   width: 80%;
 }

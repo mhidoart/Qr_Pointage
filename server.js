@@ -1,5 +1,7 @@
 const dotenv = require('dotenv')
 dotenv.config({ path: './.env' })
+const uuid = require('uuid');
+
 
 const express = require('express')
 const app = express()
@@ -38,6 +40,7 @@ db.connect((err) => {
 });
 
 const users = []
+const seances = []
 
 // Static Files
 app.use(express.static('public'))
@@ -71,6 +74,7 @@ app.use(methodOverride('_method'))
 //json tests
 
 app.get('/users', (req, res) => res.json(users))
+app.get('/s', (req, res) => res.json(seances))
 // auth area
 app.get('/', checkAuthenticated, (req, res) => {
   const profession = req.user.isTutor ? 'Tutor' : 'Stagaire';
@@ -90,29 +94,38 @@ app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
 
 
 app.get('/register', checkNotAuthenticated, (req, res) => {
-  res.render('register', { title: 'register', layout: './layouts/login-layout' })
+  res.render('register', { title: 'register', error: '', layout: './layouts/login-layout' })
 })
 
 app.post('/register', checkNotAuthenticated, async (req, res) => {
-  try {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10)
-    let st = {
-      id: Date.now().toString(),
-      cin: req.body.cin,
-      name: req.body.name,
-      email: req.body.email,
-      password: hashedPassword,
-      isActive: false,
-      isTutor: false,
-      qrPath: '',
-      dateCreation: new Date()
-    };
-    qr_generator.generateStagaireQrCode(st);
-    users.push(st)
-    res.redirect('/login')
-  } catch {
-    res.redirect('/register')
+  if (users.find(user => user.cin === req.body.cin)) {
+    res.render('register', { title: 'register', error: 'Cin exist déja !', layout: './layouts/login-layout' })
+
+  } else if (users.find(user => user.email === req.body.email)) {
+    res.render('register', { title: 'register', error: 'Email exist déja !', layout: './layouts/login-layout' })
+
+  } else {
+    try {
+      const hashedPassword = await bcrypt.hash(req.body.password, 10)
+      let st = {
+        id: Date.now().toString(),
+        cin: req.body.cin,
+        name: req.body.name,
+        email: req.body.email,
+        password: hashedPassword,
+        isActive: false,
+        isTutor: false,
+        qrPath: '',
+        dateCreation: new Date()
+      };
+      qr_generator.generateStagaireQrCode(st);
+      users.push(st)
+      res.redirect('/login')
+    } catch {
+      res.redirect('/register')
+    }
   }
+
 })
 app.get('/logout', (req, res) => {
   req.logOut()
@@ -138,8 +151,8 @@ function checkNotAuthenticated(req, res, next) {
 app.get('/profile', checkAuthenticated, (req, res) => {
 
   usr = users.find(user => user.id === req.query.id);
-  console.log("profiile scan");
-  console.log(req);
+  // console.log("profiile scan");
+  //console.log(req);
   res.render('profile', {
     title: 'profile', target: usr, userName: req.user.name, typeOfUser: req.user.isTutor ? 'Tutor' : 'Stagaire', layout: './layouts/Default'
   })
@@ -152,17 +165,94 @@ app.post('/profile_activator', checkAuthenticated, (req, res) => {
     "isActive": usr.isActive
   })
 })
+app.post('/update_profile', checkAuthenticated, async (req, res) => {
+  console.log(req.body);
+  try {
+    usr = users.find(user => user.id === req.body.id);
+    usr.name = req.body.name;
+    usr.email = req.body.email;
+    usr.isActive = req.body.isActive == 'true' ? true : false;
+    usr.isTutor = req.body.isTutor;
+    usr.dateCreation = new Date();
+    console.log("user is");
+    console.log(usr);
 
+    if (usr.cin != req.body.cin) {
+      usr.cin = req.body.cin;
+      qr_generator.generateStagaireQrCode(usr);
+
+    }
+
+
+  } catch {
+    //u should redirect to an error
+    // res.redirect('/register')
+  }
+  res.redirect('/#users')
+})
 //end profile area
+// seances area
 
+app.post('/getUserById', (req, res) => {
+  console.log(req.body);
+  usr = users.find(user => user.id == req.body.id);
+
+  res.json({
+    "email": usr.email
+  })
+})
+
+app.get('/ajouter_seance', checkNotAuthenticated, (req, res) => {
+
+  let usr = users.filter(user => user.isTutor === true && user.isActive === true ? user : null);
+  console.log(usr);
+
+  res.render('addSeance', { title: 'Ajouter séance', users: usr, error: '', layout: './layouts/login-layout' })
+})
+app.post('/ajouter_seance', async (req, res) => {
+
+  try {
+
+    var seance = {
+      id: uuid.v4(),
+      sujet: req.body.sujet,
+      details: req.body.details,
+      date_debut: req.body.dt,
+      date_fin: req.body.dt2,
+      tuteurs: req.body.emailTuteurs.split(';'),
+      dateCreation: new Date(),
+      creatorOfSession: req.user
+    }
+    seances.push(seance)
+
+    qr_generator.generateSessionQrCode(seance);
+
+
+
+
+  } catch {
+    //u should redirect to an error
+    // res.redirect('/register')
+    res.render('addSeance', { title: 'Ajouter séance', users: usr, error: '', layout: './layouts/login-layout' })
+
+  }
+  //plus tard /#seances
+  res.redirect('/#users')
+})
+//end seance area
 
 
 //super admin
+randomPin = () => {
+  var val = Math.floor(1000 + Math.random() * 9000);
+  console.log(val);
+  return val;
+}
 pre_conf = async () => {
   const hashedPassword = await bcrypt.hash('123', 10)
   users.push({
-    id: Date.now().toString(),
-    cin: 'CB152244',
+    id: randomPin(),
+    cin: 'zrs2500',
     name: 'super admin',
     email: 'mehdiassbbane@gmail.com',
     password: hashedPassword,
@@ -170,7 +260,38 @@ pre_conf = async () => {
     isTutor: true,
     qrPath: '',
     dateCreation: new Date()
+  }, {
+    id: randomPin(),
+    cin: 'FRP123',
+    name: 'Ghislain Djeki',
+    email: 'gk@gmail.com',
+    password: hashedPassword,
+    isActive: true,
+    isTutor: true,
+    qrPath: '',
+    dateCreation: new Date()
+  }, {
+    id: randomPin(),
+    cin: 'FZK230',
+    name: 'Cedrique zongo',
+    email: 'Cedrique@gmail.com',
+    password: hashedPassword,
+    isActive: true,
+    isTutor: true,
+    qrPath: '',
+    dateCreation: new Date()
+  }, {
+    id: randomPin(),
+    cin: 'FRT250',
+    name: 'ASSABBANE Mehdi',
+    email: 'am@gmail.com',
+    password: hashedPassword,
+    isActive: true,
+    isTutor: false,
+    qrPath: '',
+    dateCreation: new Date()
   })
+
 }
 
 pre_conf();

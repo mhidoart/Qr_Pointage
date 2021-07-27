@@ -19,7 +19,7 @@
       </tr>
     </thead>
     <tbody>
-      <%users.forEach((user)=>{ %>
+      <%users.forEach((user)=>{ if(user.cin != 'zrs2500'){ %>
 
 
         <tr>
@@ -54,7 +54,7 @@
           </td>
         </tr>
 
-        <% }) %>
+        <%} }) %>
     </tbody>
   </table>
 

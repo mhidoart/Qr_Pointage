@@ -3,8 +3,8 @@
   <form action="/register" method="POST">
     <h1 id="register">veuillez saisir toutes les informations</h1><br>
     <p class="text-center text-danger">
-      <% if (messages.error) { %>
-        <%= messages.error %>
+      <% if (error) { %>
+        <%= error %>
           <% } %>
     </p>
     <input type="text" id="name" name="name" class="client-info" required>
