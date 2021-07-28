@@ -73,7 +73,12 @@ function AjouterParmiTuteurs(idTuteur) {
             console.log(res);
             idRow = "#row_" + idTuteur
             if ($("#emailTuteurs").val() != "") {
-                $("#emailTuteurs").val($("#emailTuteurs").val() + ";" + res.email)
+                if ($("#emailTuteurs").val().includes(res.email)) {
+                    console.log('email exist deja!');
+
+                } else {
+                    $("#emailTuteurs").val($("#emailTuteurs").val() + ";" + res.email)
+                }
 
             } else {
                 $("#emailTuteurs").val(res.email)

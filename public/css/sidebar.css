@@ -227,9 +227,10 @@
   min-height: 100vh;
   top: 0;
   left: 78px;
-  width: calc(100% - 78px);
+ width: calc(100% - 78px);
   transition: all 0.5s ease;
   z-index: 2;
+  overflow-x: scroll;
 }
 .sidebar.open ~ .home-section{
   left: 250px;
@@ -246,6 +247,8 @@
   height: 700px;
   text-align: center;
   text-decoration: underline;
+  width:100%;
+  padding: 10px;
 }
 ol,ul{
       padding-left: 0 !important;

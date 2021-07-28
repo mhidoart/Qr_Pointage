@@ -8,40 +8,55 @@
 </head>
 <div class="container-lg"
     style="width: 1000; background-color: whitesmoke;margin-top: 20px; border-radius: 20px; padding: 5px;">
-    <form action="/ajouter_seance" method="POST">
-        <h1 id="register">Créer une session</h1><br>
+    <form action="/modifier_session" method="POST">
+        <h1 id="register">Modifier une session</h1><br>
         <p class="text-center text-danger">
             <% if (error) { %>
                 <%= error %>
                     <% } %>
         </p>
+        <div class="container d-flex" style="align-items: baseline;">
+            <div class="form-group" style="width: 50%; padding: 3px;">
+                <small for="dtCreation">Création / modification de la Séance courante </small>
+                <input type="text" id="dtCreation" name="dtCreation" class="form-control"
+                    value="<%=session.dateCreation%>" disabled />
+            </div>
+            <div class="form-group" style="width: 50%;padding: 3px;">
+                <small for="dtCreation">Créateur de la seance</small>
+                <input type="text" id="dtCreation" name="dtCreation" class="form-control"
+                    value="<%=session.creatorOfSession.name%>" disabled />
+            </div>
+
+        </div>
         <div class="container d-flex">
             <div style="width: 50%; padding: 3px;">
                 <div class="form-group">
                     <small for="sujet">Sujet </small>
-                    <input type="text" id="sujet" name="sujet" class="form-control" required>
+                    <input type="text" id="id" name="id" class="form-control d-none" value="<%=session.id%>">
+
+                    <input type="text" id="sujet" name="sujet" class="form-control" value="<%=session.sujet%>" required>
                 </div>
                 <div class="form-group">
                     <small for="details">Déscription</small>
-                    <textarea class="form-control" id="details" name="details" rows="3">
-                    </textarea>
+                    <textarea class="form-control" id="details" name="details" rows="3"><%=session.details%></textarea>
                 </div>
 
             </div>
 
             <div style="width: 50%;padding: 3px;">
                 <small for="dt">Date Début </small>
-                <input type="text" id="dt" name="dt" class="form-control" required>
+                <input type="text" id="dt" name="dt" class="form-control" value="<%=session.date_debut%>" required>
 
                 <small for="dt2">Date Fin </small>
-                <input type="text" id="dt2" name="dt2" class="form-control" required>
+                <input type="text" id="dt2" name="dt2" class="form-control" value="<%=session.date_fin%>" required>
 
-                <br>
+
             </div>
         </div>
+
         <div class="d-flex" style="align-items: baseline;">
             <input type="text" id="emailTuteurs" name="emailTuteurs" class="client-info-sans-focus" style="width: 80%;"
-                required>
+                value="<%=session.tuteurs.join(';')%>" required>
             <button type="button" class="btn btn-primary" style="height: 50px; width: 20%;" onclick="showAddTutor()">
                 Ajouter un tuteur
             </button>
@@ -114,7 +129,7 @@
 
             <!-- fin modal-->
         </div>
-        <input type="submit" id="submit" class="client-info" value="creer">
+        <input type="submit" id="submit" class="client-info" value="Modifier">
 
     </form>
 

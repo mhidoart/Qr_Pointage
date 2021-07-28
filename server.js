@@ -79,7 +79,7 @@ app.get('/s', (req, res) => res.json(seances))
 app.get('/', checkAuthenticated, (req, res) => {
   const profession = req.user.isTutor ? 'Tutor' : 'Stagaire';
 
-  res.render('index', { title: 'Home Page', users: users, userName: req.user.name, typeOfUser: profession, layout: './layouts/default' })
+  res.render('index', { title: 'Home Page', seances: seances, users: users, userName: req.user.name, typeOfUser: profession, layout: './layouts/default' })
 })
 //auth area
 app.get('/login', checkNotAuthenticated, (req, res) => {
@@ -193,7 +193,7 @@ app.post('/update_profile', checkAuthenticated, async (req, res) => {
 //end profile area
 // seances area
 
-app.post('/getUserById', (req, res) => {
+app.post('/getUserById', checkAuthenticated, (req, res) => {
   console.log(req.body);
   usr = users.find(user => user.id == req.body.id);
 
@@ -202,14 +202,14 @@ app.post('/getUserById', (req, res) => {
   })
 })
 
-app.get('/ajouter_seance', checkNotAuthenticated, (req, res) => {
+app.get('/ajouter_seance', checkAuthenticated, (req, res) => {
 
   let usr = users.filter(user => user.isTutor === true && user.isActive === true ? user : null);
   console.log(usr);
 
   res.render('addSeance', { title: 'Ajouter séance', users: usr, error: '', layout: './layouts/login-layout' })
 })
-app.post('/ajouter_seance', async (req, res) => {
+app.post('/ajouter_seance', checkAuthenticated, async (req, res) => {
 
   try {
 
@@ -239,13 +239,52 @@ app.post('/ajouter_seance', async (req, res) => {
   //plus tard /#seances
   res.redirect('/#users')
 })
+
+
+
+app.get('/modifier_session', checkAuthenticated, (req, res) => {
+  let session = seances.find(s => s.id == req.query.id);
+
+  //let usr = users.filter(user => user.isTutor === true && user.isActive === true && !session.tuteurs.includes(user.email) ? user : null);
+  let usr = users.filter(user => user.isTutor === true && user.isActive === true ? user : null);
+
+  res.render('modifierSession.ejs', { title: 'Modifier séance', session: session, users: usr, error: '', layout: './layouts/login-layout' })
+})
+app.post('/modifier_session', checkAuthenticated, async (req, res) => {
+  let session = seances.find(s => s.id == req.body.id);
+
+  try {
+
+    session.sujet = req.body.sujet;
+    session.details = req.body.details;
+    session.date_debut = req.body.dt;
+    session.date_fin = req.body.dt2;
+    session.tuteurs = req.body.emailTuteurs.split(';');
+    session.dateCreation = new Date(),
+      session.creatorOfSession = req.user
+
+    //if the Qr exist -> its ok : we create a new one having that the qr code has to do with the session is which doesn't change, the function bellow has only benefits
+    qr_generator.generateSessionQrCode(seance);
+
+
+
+
+  } catch {
+    //u should redirect to an error
+    //res.redirect('/')
+    //
+
+  }
+  //plus tard /#seances
+  res.redirect('/#sessions')
+})
 //end seance area
 
 
 //super admin
 randomPin = () => {
   var val = Math.floor(1000 + Math.random() * 9000);
-  console.log(val);
+  //console.log(val);
   return val;
 }
 pre_conf = async () => {
@@ -291,7 +330,27 @@ pre_conf = async () => {
     qrPath: '',
     dateCreation: new Date()
   })
-
+  var seance = {
+    id: uuid.v4(),
+    sujet: 'cv',
+    details: 'comment creer sont CV',
+    date_debut: new Date(),
+    date_fin: new Date(),
+    tuteurs: ["Cedrique@gmail.com", "gk@gmail.com"],
+    dateCreation: new Date(),
+    creatorOfSession: {
+      id: randomPin(),
+      cin: 'FRP123',
+      name: 'Ghislain Djeki',
+      email: 'gk@gmail.com',
+      password: hashedPassword,
+      isActive: true,
+      isTutor: true,
+      qrPath: '',
+      dateCreation: new Date()
+    }
+  }
+  seances.push(seance)
 }
 
 pre_conf();

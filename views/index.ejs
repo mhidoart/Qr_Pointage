@@ -59,3 +59,64 @@
   </table>
 
 </div>
+
+<div id="sessions" class="full-page-h">
+  <h1>Sessions</h1>
+
+  <table class="table table-dark" style="  width:100%;">
+    <thead>
+      <tr>
+        <th scope="col">id</th>
+        <th scope="col">Sujet</th>
+        <th scope="col">Détails</th>
+        <th scope="col">Date début</th>
+        <th scope="col">Date fin</th>
+        <th scope="col">Créateur de session</th>
+        <th scope="col">tuteurs</th>
+        <th scope="col">Date création de session</th>
+
+        <th scope="col">Actions</th>
+
+
+      </tr>
+    </thead>
+    <tbody>
+      <%seances.forEach((s)=>{ %>
+
+
+        <tr>
+          <td>
+            <%=s.id%>
+          </td>
+          <td>
+            <%=s.sujet%>
+          </td>
+          <td>
+            <%=s.details%>
+          </td>
+          <td>
+            <%=s.date_debut%>
+          </td>
+          <td>
+            <%=s.date_fin%>
+          </td>
+          <td>
+            <%=s.creatorOfSession.name%>
+          </td>
+          <td>
+            <%=s.tuteurs.join(';')%>
+          </td>
+          <td>
+            <%=s.dateCreation%>
+          </td>
+
+          <td>
+            <a class="btn btn-warning" href="/modifier_session?id=<%=s.id%>">Modifier</a>
+
+          </td>
+        </tr>
+
+        <% }) %>
+    </tbody>
+  </table>
+</div>
