@@ -74,6 +74,23 @@ app.use(methodOverride('_method'))
 //json tests
 
 app.get('/users', (req, res) => res.json(users))
+app.get('/seancesParUser', (req, res) => {
+  const nbrSeances = function (name) {
+    var cp = 0;
+    seances.forEach(s => {
+      s.creatorOfSession.name == name && s.creatorOfSession.isTutor == true ? cp++ : null;
+    })
+    return cp;
+  }
+  var tab = users.map(function (s) {
+    return { usr: s.name, score: 0 }
+  })
+  tab.forEach(t => {
+    t.score = nbrSeances(t.usr)
+  });
+  res.json(tab)
+})
+
 app.get('/s', (req, res) => res.json(seances))
 // auth area
 app.get('/', checkAuthenticated, (req, res) => {
@@ -150,7 +167,7 @@ function checkNotAuthenticated(req, res, next) {
 //profile area
 app.get('/profile', checkAuthenticated, (req, res) => {
 
-  usr = users.find(user => user.id === req.query.id);
+  usr = users.find(user => user.id == req.query.id);
   // console.log("profiile scan");
   //console.log(req);
   res.render('profile', {
@@ -158,7 +175,7 @@ app.get('/profile', checkAuthenticated, (req, res) => {
   })
 })
 app.post('/profile_activator', checkAuthenticated, (req, res) => {
-  usr = users.find(user => user.cin === req.body.cin);
+  usr = users.find(user => user.cin == req.body.cin);
   usr.isActive = !usr.isActive;
 
   res.json({
@@ -202,6 +219,14 @@ app.post('/getUserById', checkAuthenticated, (req, res) => {
   })
 })
 
+app.get('/seance_details', checkAuthenticated, (req, res) => {
+
+  se = seances.find(s => s.id == req.query.id);
+  //TO DO il faut faire un try catch ici avec redirection a une page d'erreur
+  res.render('seance_details', {
+    title: 'seance_details', target: se, userName: req.user.name, typeOfUser: req.user.isTutor ? 'Tutor' : 'Stagaire', layout: './layouts/public_layout'
+  })
+})
 app.get('/ajouter_seance', checkAuthenticated, (req, res) => {
 
   let usr = users.filter(user => user.isTutor === true && user.isActive === true ? user : null);
@@ -329,15 +354,26 @@ pre_conf = async () => {
     isTutor: false,
     qrPath: '',
     dateCreation: new Date()
+  }, {
+    id: randomPin(),
+    cin: 'FRT250',
+    name: 'Salah ZDAGADAG',
+    email: 'az@gmail.com',
+    password: hashedPassword,
+    isActive: false,
+    isTutor: false,
+    qrPath: '',
+    dateCreation: new Date()
   })
   var seance = {
     id: uuid.v4(),
     sujet: 'cv',
-    details: 'comment creer sont CV',
+    details: 'Le CV est l’élément déterminant d’une candidature, d’une carrière. Créez un CV simple et moderne en vous inspirant d’un modèle gratuit et de conseils de pro grâce à ce guide.',
     date_debut: new Date(),
     date_fin: new Date(),
     tuteurs: ["Cedrique@gmail.com", "gk@gmail.com"],
     dateCreation: new Date(),
+    qrPath: '',
     creatorOfSession: {
       id: randomPin(),
       cin: 'FRP123',
@@ -349,7 +385,44 @@ pre_conf = async () => {
       qrPath: '',
       dateCreation: new Date()
     }
+    , questions_rep: [
+      {
+        question: 'question1',
+        reponses: [
+          {
+            rep: 'reponse 1',
+            isCorrect: true,
+          }, {
+            rep: 'reponse 2',
+            isCorrect: false,
+          }, {
+            rep: 'reponse 3',
+            isCorrect: false,
+          },
+          {
+            rep: 'reponse 4',
+            isCorrect: true,
+          }
+        ]
+      },
+      {
+        question: 'question 2',
+        reponses: [
+          {
+            rep: 'reponse #1',
+            isCorrect: false,
+          }, {
+            rep: 'reponse #2',
+            isCorrect: false,
+          }, {
+            rep: 'reponse #3',
+            isCorrect: true,
+          }
+        ]
+      }
+    ]
   }
+  qr_generator.generateSessionQrCode(seance);
   seances.push(seance)
 }
 

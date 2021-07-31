@@ -1,0 +1,51 @@
+<div class="container pt-3 col-lg-10  col-md-10 bg-white rounded mt-3">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="row">
+                <div class="border-bottom border-secondary">
+                    <p>
+                        Séance id: <%= target.id%>
+                    </p>
+                    <p>Date Début: <%= target.date_debut%>
+                    </p>
+                    <p>Date Fin: <%= target.date_fin%>
+                    </p>
+                </div>
+                <h3>
+                    sujet:
+                </h3>
+                <p>
+                    <%= target.sujet%>
+                </p>
+                <h3>
+                    Details:
+                </h3>
+                <p class="container col-md-10 col-lg-10">
+                    <%= target.details%>
+                </p>
+
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="row text-center">
+                <h3>Qr code (public)</h3>
+                <p>createur : <%=target.creatorOfSession.name%>
+                </p>
+                <p>Date création : <%=target.dateCreation%>
+                </p>
+
+                <div class="container col-md-10">
+                    <img class=" rounded mx-auto d-block" src="<%= target.qrPath%>" alt="">
+                </div>
+                <p>
+                    Tuteurs: <br>
+                    (<%=target.tuteurs%>)
+
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="row text-center text-danger">
+        <p>Si vous êtes un stagiaire, vous devez vous connecter puis scanner le code QR.</p>
+    </div>
+</div>

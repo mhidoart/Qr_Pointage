@@ -1,122 +1,174 @@
 <script src="/js/profile.js"></script>
-<div id="dashboard" class="full-page-h">
-  <h1>Dashboard </h1>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.4.1/dist/chart.min.js"></script>
+<div id="dashboard" class="container-fluid">
+  <div class="row">
+    <h1>Dashboard </h1>
+    <div class="col-sm-6">
+      <div class="container col-md-6"><canvas id="nbrUsers" width="100" height="100"></canvas></div>
+      <script>
+        var ctx = document.getElementById('nbrUsers').getContext('2d');
+        var myChart = new Chart(ctx, {
+          type: 'polarArea',
+          data: {
+            labels: [
+              'Nbr Stagaires',
+              'Nbr Tuteurs',
+              'Nbre comptes desactivé',
+              'Nbre comptes activé',
+              'Nbre Totale d\'utilisateurs'
+            ],
+            datasets: [{
+              label: 'Users Chart',
+              data: [<%=users.filter(user => user.isTutor == false ? user : null).length %>,
+                <%=users.filter(user => user.isTutor == true ? user : null).length %>,
+                <%=users.filter(user => user.isActive == false ? user : null).length %>,
+                <%=users.filter(user => user.isActive == true ? user : null).length %>,
+              <%=users.length %>],
+              backgroundColor: [
+                'rgb(255, 99, 132)',
+                'rgb(75, 192, 192)',
+                'rgb(255, 205, 86)',
+                'rgb(201, 203, 207)',
+                'rgb(246,34,34)'
+              ]
+            }]
+          }
+
+        });
+      </script>
+
+    </div>
+    <div class="col-sm-6">
+
+      <canvas id="seancesChart"></canvas>
+
+    </div>
+  </div>
 </div>
 
-<div id="users" class="full-page-h">
-  <h1>users</h1>
-  <table class="table table-dark">
-    <thead>
-      <tr>
-        <th scope="col">id</th>
-        <th scope="col">CIN</th>
-        <th scope="col">Nome Complet</th>
-        <th scope="col">Email</th>
-        <th scope="col">Active</th>
-        <th scope="col">Tutor</th>
-        <th scope="col">Action</th>
+<div id="users" class="container-fluid">
+  <div class="row">
+    <div class="Col-sm-12 col-md-12">
+      <h1>users</h1>
+      <table class="table table-dark">
+        <thead>
+          <tr>
+            <th scope="col">id</th>
+            <th scope="col">CIN</th>
+            <th scope="col">Nome Complet</th>
+            <th scope="col">Email</th>
+            <th scope="col">Active</th>
+            <th scope="col">Tutor</th>
+            <th scope="col">Action</th>
 
-      </tr>
-    </thead>
-    <tbody>
-      <%users.forEach((user)=>{ if(user.cin != 'zrs2500'){ %>
-
-
-        <tr>
-          <td>
-            <%=user.id%>
-          </td>
-          <td>
-            <%=user.cin%>
-          </td>
-          <td>
-            <%=user.name%>
-          </td>
-          <td>
-            <%=user.email%>
-          </td>
-          <td id="isActive_<%=user.cin%>">
-            <%= user.isActive ? 'Oui' : 'Non' %>
-          </td>
-
-          <td>
-            <%= user.isTutor ? 'Tutor' : 'Stagaire' %>
-          </td>
-          <td>
-
-            <a class="btn btn-warning" href="/profile?id=<%=user.id%>&cin=<%=user.cin%>"> Modifier</a>
-            <a id="activateProfile_<%=user.cin%>" class="btn  <%= user.isActive? 'btn-danger' : 'btn-primary' %>"
-              onclick="activate_desactivate_profile(event,`<%= user.cin %>`)" href="#">
-              <%= user.isActive? "Désactivé" : "Activé" %>
-            </a>
+          </tr>
+        </thead>
+        <tbody>
+          <%users.forEach((user)=>{ if(user.cin != 'zrs2500'){ %>
 
 
-          </td>
-        </tr>
+            <tr>
+              <td>
+                <%=user.id%>
+              </td>
+              <td>
+                <%=user.cin%>
+              </td>
+              <td>
+                <%=user.name%>
+              </td>
+              <td>
+                <%=user.email%>
+              </td>
+              <td id="isActive_<%=user.cin%>">
+                <%= user.isActive ? 'Oui' : 'Non' %>
+              </td>
 
-        <%} }) %>
-    </tbody>
-  </table>
+              <td>
+                <%= user.isTutor ? 'Tutor' : 'Stagaire' %>
+              </td>
+              <td>
 
+                <a class="btn btn-warning" href="/profile?id=<%=user.id%>&cin=<%=user.cin%>"> Modifier</a>
+                <a id="activateProfile_<%=user.cin%>" class="btn  <%= user.isActive? 'btn-danger' : 'btn-primary' %>"
+                  onclick="activate_desactivate_profile(event,`<%= user.cin %>`)" href="#">
+                  <%= user.isActive? "Désactivé" : "Activé" %>
+                </a>
+
+
+              </td>
+            </tr>
+
+            <%} }) %>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
 </div>
 
-<div id="sessions" class="full-page-h">
-  <h1>Sessions</h1>
+<div id="sessions" class="container-fluid">
+  <div class="row">
+    <div class="col-sm-12">
+      <h1>Sessions</h1>
 
-  <table class="table table-dark" style="  width:100%;">
-    <thead>
-      <tr>
-        <th scope="col">id</th>
-        <th scope="col">Sujet</th>
-        <th scope="col">Détails</th>
-        <th scope="col">Date début</th>
-        <th scope="col">Date fin</th>
-        <th scope="col">Créateur de session</th>
-        <th scope="col">tuteurs</th>
-        <th scope="col">Date création de session</th>
+      <table class="table table-dark" style="  width:100%;">
+        <thead>
+          <tr>
+            <th scope="col">id</th>
+            <th scope="col">Sujet</th>
+            <th scope="col">Détails</th>
+            <th scope="col">Date début</th>
+            <th scope="col">Date fin</th>
+            <th scope="col">Créateur de session</th>
+            <th scope="col">tuteurs</th>
+            <th scope="col">Date création de session</th>
 
-        <th scope="col">Actions</th>
-
-
-      </tr>
-    </thead>
-    <tbody>
-      <%seances.forEach((s)=>{ %>
+            <th scope="col">Actions</th>
 
 
-        <tr>
-          <td>
-            <%=s.id%>
-          </td>
-          <td>
-            <%=s.sujet%>
-          </td>
-          <td>
-            <%=s.details%>
-          </td>
-          <td>
-            <%=s.date_debut%>
-          </td>
-          <td>
-            <%=s.date_fin%>
-          </td>
-          <td>
-            <%=s.creatorOfSession.name%>
-          </td>
-          <td>
-            <%=s.tuteurs.join(';')%>
-          </td>
-          <td>
-            <%=s.dateCreation%>
-          </td>
+          </tr>
+        </thead>
+        <tbody>
+          <%seances.forEach((s)=>{ %>
 
-          <td>
-            <a class="btn btn-warning" href="/modifier_session?id=<%=s.id%>">Modifier</a>
 
-          </td>
-        </tr>
+            <tr>
+              <td>
+                <%=s.id%>
+              </td>
+              <td>
+                <%=s.sujet%>
+              </td>
+              <td>
+                <%=s.details%>
+              </td>
+              <td>
+                <%=s.date_debut%>
+              </td>
+              <td>
+                <%=s.date_fin%>
+              </td>
+              <td>
+                <%=s.creatorOfSession.name%>
+              </td>
+              <td>
+                <%=s.tuteurs.join(';')%>
+              </td>
+              <td>
+                <%=s.dateCreation%>
+              </td>
 
-        <% }) %>
-    </tbody>
-  </table>
+              <td>
+                <a class="btn btn-warning" href="/modifier_session?id=<%=s.id%>">Modifier</a>
+                <a class="btn btn-primary" href="/seance_details?id=<%=s.id%>">Détails</a>
+
+              </td>
+            </tr>
+
+            <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>

@@ -81,12 +81,12 @@ class QrGenerator {
 
         //le contenu du qr code ou l'information qui va etre le resulta apres avoir scanner se qrcode
         let data = new URL(this.myUrl)
-        data.pathname = "profile"
+        data.pathname = "seance_details"
         data.searchParams.append('id', session.id);
 
         console.log(data);
         this.saveQrCode(session_folder, session.id, data.href);
-
+        session.qrPath = '/qr/sessions/' + session.id + '.png';
         console.log("end generating Qr codes for Session: " + session.id);
 
     }
