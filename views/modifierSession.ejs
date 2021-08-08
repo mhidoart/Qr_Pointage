@@ -4,6 +4,7 @@
     <script src="/js/moment.min.js"></script>
     <script src="/js/dt/jquery.datetimepicker.js"></script>
     <script src="/js/addSeance.js"></script>
+    <script src="/js/modifierSession.js"></script>
 
 </head>
 <div class="container-lg"
@@ -16,15 +17,14 @@
                     <% } %>
         </p>
         <div class="container d-flex" style="align-items: baseline;">
+            <input type="text" id="idSession" name="idSession" class="form-control d-none" value="" />
             <div class="form-group" style="width: 50%; padding: 3px;">
                 <small for="dtCreation">Création / modification de la Séance courante </small>
-                <input type="text" id="dtCreation" name="dtCreation" class="form-control"
-                    value="<%=session.dateCreation%>" disabled />
+                <input type="text" id="dtCreation" name="dtCreation" class="form-control" value="" disabled />
             </div>
             <div class="form-group" style="width: 50%;padding: 3px;">
-                <small for="dtCreation">Créateur de la seance</small>
-                <input type="text" id="dtCreation" name="dtCreation" class="form-control"
-                    value="<%=session.creatorOfSession.name%>" disabled />
+                <small for="createur">Créateur de la seance</small>
+                <input type="text" id="createur" name="createur" class="form-control" value="" disabled />
             </div>
 
         </div>
@@ -32,13 +32,13 @@
             <div style="width: 50%; padding: 3px;">
                 <div class="form-group">
                     <small for="sujet">Sujet </small>
-                    <input type="text" id="id" name="id" class="form-control d-none" value="<%=session.id%>">
+                    <input type="text" id="id" name="id" class="form-control d-none" value="<%=session%>">
 
-                    <input type="text" id="sujet" name="sujet" class="form-control" value="<%=session.sujet%>" required>
+                    <input type="text" id="sujet" name="sujet" class="form-control" value="" required>
                 </div>
                 <div class="form-group">
                     <small for="details">Déscription</small>
-                    <textarea class="form-control" id="details" name="details" rows="3"><%=session.details%></textarea>
+                    <textarea class="form-control" id="details" name="details" rows="3"></textarea>
                 </div>
 
             </div>
@@ -56,7 +56,7 @@
 
         <div class="d-flex" style="align-items: baseline;">
             <input type="text" id="emailTuteurs" name="emailTuteurs" class="client-info-sans-focus" style="width: 80%;"
-                value="<%=session.tuteurs.join(';')%>" required>
+                value="" required>
             <button type="button" class="btn btn-primary" style="height: 50px; width: 20%;" onclick="showAddTutor()">
                 Ajouter un tuteur
             </button>

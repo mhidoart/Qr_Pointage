@@ -332,16 +332,26 @@ app.post('/ajouter_seance', checkAuthenticated, async (req, res) => {
 
 app.get('/get_seance_by_id', async (req, res) => {
 
-
+  console.log("getting session with id : " + req.query.id);
   try {
     const id = req.query.id;
     const st = await firestore.collection('seance').doc(id);
     const data = await st.get();
-
+    console.log(data);
+    const session = new Seance(
+      data.id,
+      data.data().idv4,
+      data.data().sujet,
+      data.data().details,
+      data.data().date_debut,
+      data.data().date_fin,
+      data.data().tuteurs,
+      data.data().dateCreation,
+      data.data().creatorOfSession)
     if (!data.exists) {
       res.status(404).send('seance not found ');
     } else {
-      res.json(data)
+      res.json(session)
     }
   } catch (error) {
     res.status(400).send(error.message);
@@ -359,32 +369,26 @@ app.get('/modifier_session', checkAuthenticated, async (req, res) => {
   res.render('modifierSession.ejs', { title: 'Modifier séance', session: req.query.id, users: usr, error: '', layout: './layouts/login-layout' })
 })
 app.post('/modifier_session', checkAuthenticated, async (req, res) => {
-  let session = seances.find(s => s.id == req.body.id);
-
   try {
-
-    session.sujet = req.body.sujet;
-    session.details = req.body.details;
-    session.date_debut = req.body.dt;
-    session.date_fin = req.body.dt2;
-    session.tuteurs = req.body.emailTuteurs.split(';');
-    session.dateCreation = new Date(),
-      session.creatorOfSession = req.user
-
-    //if the Qr exist -> its ok : we create a new one having that the qr code has to do with the session is which doesn't change, the function bellow has only benefits
-    qr_generator.generateSessionQrCode(seance);
-
-
-
-
-  } catch {
-    //u should redirect to an error
-    //res.redirect('/')
-    //
+    const id = req.body.idSession;
+    const data = {
+      sujet: req.body.sujet,
+      details: req.body.details,
+      date_debut: req.body.dt,
+      date_fin: req.body.dt2,
+      tuteurs: req.body.emailTuteurs.split(';'),
+      dateCreation: new Date(),
+      creatorOfSession: req.user
+    }
+    const student = await firestore.collection('seance').doc(id);
+    await student.update(data);
+    res.redirect('/#sessions')
+  } catch (error) {
+    res.status(400).send(err.message);
 
   }
+
   //plus tard /#seances
-  res.redirect('/#sessions')
 })
 //end seance area
 
