@@ -1,4 +1,6 @@
 <script src="/js/profile.js"></script>
+<script src="/js/index.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.4.1/dist/chart.min.js"></script>
 <div id="dashboard" class="container-fluid">
   <div class="row">
@@ -111,7 +113,7 @@
   <div class="row">
     <div class="col-sm-12">
       <h1>Sessions</h1>
-
+      <a href="/ajouter_seance" class="btn btn-primary m-3">Ajouter une séance</a>
       <table class="table table-dark" style="  width:100%;">
         <thead>
           <tr>
@@ -129,44 +131,34 @@
 
           </tr>
         </thead>
-        <tbody>
-          <%seances.forEach((s)=>{ %>
+        <tbody id="tb_seances">
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="satisfactionForms" class="container-fluid">
+  <div class="row">
+    <div class="col-sm-12">
+      <h1>Formulaires de satisfactions</h1>
+      <table class="table table-dark" style="  width:100%;">
+        <thead>
+          <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Id Séance</th>
+            <th scope="col">ID createur</th>
+            <th scope="col">nbr Questions</th>
 
 
-            <tr>
-              <td>
-                <%=s.id%>
-              </td>
-              <td>
-                <%=s.sujet%>
-              </td>
-              <td>
-                <%=s.details%>
-              </td>
-              <td>
-                <%=s.date_debut%>
-              </td>
-              <td>
-                <%=s.date_fin%>
-              </td>
-              <td>
-                <%=s.creatorOfSession.name%>
-              </td>
-              <td>
-                <%=s.tuteurs.join(';')%>
-              </td>
-              <td>
-                <%=s.dateCreation%>
-              </td>
+            <th scope="col">Actions</th>
 
-              <td>
-                <a class="btn btn-warning" href="/modifier_session?id=<%=s.id%>">Modifier</a>
-                <a class="btn btn-primary" href="/seance_details?id=<%=s.id%>">Détails</a>
 
-              </td>
-            </tr>
+          </tr>
+        </thead>
+        <tbody id="satisfactionTbody">
 
-            <% }) %>
         </tbody>
       </table>
     </div>

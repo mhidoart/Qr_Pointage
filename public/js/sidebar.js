@@ -26,7 +26,7 @@ function repaintCharts() {
     //seance par users
     $.ajax({
         type: "Get",
-        url: default_url + "/seancesParUser",
+        url: "/seancesParUser",
         success: (res) => {
 
             var ctx = document.getElementById('seancesChart').getContext('2d');

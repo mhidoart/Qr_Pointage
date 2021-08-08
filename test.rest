@@ -19,3 +19,20 @@ Content-Type: application/json
 }
 ### list of users
 GET http://localhost:5000/users
+
+
+###  satisfaction controller
+### getAllForms
+GET http://localhost:5000/satisfaction
+
+
+
+### add a form
+POST http://localhost:5000/satisfaction/add
+Content-Type: application/json
+
+{
+    "id_seance": "id-test-la3ala9a",
+    "id_user": "9013",
+    "questions": ["first question","2nd question ?","third?"]
+}

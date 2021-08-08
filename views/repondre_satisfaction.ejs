@@ -1,0 +1,21 @@
+<script src="/js/rep_satisfaction.js"></script>
+<div class="container bg-white border border-dark rounded">
+    <div class="row">
+        <small> Id formulaire de satisfaction: <%=idForm%></small>
+        <input type="text" value="<%=user.id %>" id="idUser" class="d-none">
+        <small>User: <%=user.id %></small>
+    </div>
+    <div class="row">
+        <form id="repToSatis" action="/get_satisfaction_form" method="POST">
+            <div id="Questions"></div>
+
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="acceptPolicy" name="acceptPolicy">
+                <label class="form-check-label" for="acceptPolicy">j'accepte que vous conserviez mes réponses
+                    pendant
+                    longtemps et que vous les utilisiez dans votre système.</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>

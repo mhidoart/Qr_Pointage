@@ -4,7 +4,13 @@ const uuid = require('uuid');
 
 
 const express = require('express')
+const cors = require('cors');
+var bodyParser = require('body-parser')
+
 const app = express()
+// create application/json parser
+app.use(bodyParser.json())
+
 const bcrypt = require('bcrypt')
 const passport = require('passport')
 const flash = require('express-flash')
@@ -13,9 +19,21 @@ const methodOverride = require('method-override')
 const cookieParser = require('cookie-parser')
 const expressLayouts = require('express-ejs-layouts')
 const mysql = require('mysql')
+/// firebase 
+const Satisfaction = require('./model/satisfaction')
+const Seance = require('./model/seance')
+
+const firebase = require('./db');
+const firestore = firebase.firestore();
+
+//router
+const satisfactionRouter = require('./routes/satisfactionRouter')
+
 //controllers
 const QrGenerator = require('./controller/qr_generator.js')
 const qr_generator = new QrGenerator(process.env.URL)
+
+const { getFormsArray } = require('./controller/satisfactionController')
 
 const initializePassport = require('./passport-config')
 initializePassport(
@@ -50,6 +68,7 @@ app.use('/img', express.static(__dirname + 'public/img'))
 app.use('/js', express.static(__dirname + 'public/js'))
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
+app.use(cors());
 
 
 app.use(expressLayouts)
@@ -73,7 +92,9 @@ app.use(methodOverride('_method'))
 
 //json tests
 
-app.get('/users', (req, res) => res.json(users))
+app.get('/users', checkAuthenticated, (req, res) => {
+  res.json(users)
+})
 app.get('/seancesParUser', (req, res) => {
   const nbrSeances = function (name) {
     var cp = 0;
@@ -91,7 +112,36 @@ app.get('/seancesParUser', (req, res) => {
   res.json(tab)
 })
 
-app.get('/s', (req, res) => res.json(seances))
+app.get('/seances', async (req, res) => {
+  try {
+    const st = await firestore.collection('seance');
+    const data = await st.get();
+    const sessions = [];
+    if (data.empty) {
+      res.status(404).send('No student record found');
+    } else {
+      data.forEach(doc => {
+        /// fill array of st
+        const session = new Seance(doc.id,
+          doc.data().idv4,
+          doc.data().sujet,
+
+          doc.data().details,
+          doc.data().date_debut,
+          doc.data().date_fin,
+          doc.data().tuteurs,
+          doc.data().dateCreation,
+          doc.data().creatorOfSession)
+        sessions.push(session)
+      });
+
+      res.json(sessions)
+    }
+  } catch (err) {
+    res.status(400).send(err.message);
+
+  }
+})
 // auth area
 app.get('/', checkAuthenticated, (req, res) => {
   const profession = req.user.isTutor ? 'Tutor' : 'Stagaire';
@@ -149,6 +199,7 @@ app.get('/logout', (req, res) => {
   res.redirect('/login')
 })
 
+
 function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
     return next()
@@ -163,6 +214,7 @@ function checkNotAuthenticated(req, res, next) {
   }
   next()
 }
+
 //fin auth area
 //profile area
 app.get('/profile', checkAuthenticated, (req, res) => {
@@ -236,44 +288,75 @@ app.get('/ajouter_seance', checkAuthenticated, (req, res) => {
 })
 app.post('/ajouter_seance', checkAuthenticated, async (req, res) => {
 
+
+  /*
+  old local model
+      var seance = {
+        id: uuid.v4(),
+        sujet: req.body.sujet,
+        details: req.body.details,
+        date_debut: req.body.dt,
+        date_fin: req.body.dt2,
+        tuteurs: req.body.emailTuteurs.split(';'),
+        dateCreation: new Date(),
+        creatorOfSession: req.user
+      }
+      seances.push(seance)
+  */
+  var seance = {
+
+    idv4: uuid.v4(),
+    sujet: req.body.sujet,
+    details: req.body.details,
+    date_debut: req.body.dt,
+    date_fin: req.body.dt2,
+    tuteurs: req.body.emailTuteurs.split(';'),
+    dateCreation: new Date(),
+    creatorOfSession: req.user
+  }
+  qr_generator.generateSessionQrCode(seance);
+
   try {
-
-    var seance = {
-      id: uuid.v4(),
-      sujet: req.body.sujet,
-      details: req.body.details,
-      date_debut: req.body.dt,
-      date_fin: req.body.dt2,
-      tuteurs: req.body.emailTuteurs.split(';'),
-      dateCreation: new Date(),
-      creatorOfSession: req.user
-    }
-    seances.push(seance)
-
-    qr_generator.generateSessionQrCode(seance);
-
-
-
-
-  } catch {
+    const st = await firestore.collection('seance').doc().set(seance);
+    console.log(st)
+  } catch (err) {
     //u should redirect to an error
     // res.redirect('/register')
-    res.render('addSeance', { title: 'Ajouter séance', users: usr, error: '', layout: './layouts/login-layout' })
-
+    res.render('addSeance', { title: 'Ajouter séance', users: usr, error: 'erreur enregistrement', layout: './layouts/login-layout' })
   }
+
   //plus tard /#seances
-  res.redirect('/#users')
+  res.redirect('/#sessions')
 })
 
 
+app.get('/get_seance_by_id', async (req, res) => {
 
-app.get('/modifier_session', checkAuthenticated, (req, res) => {
-  let session = seances.find(s => s.id == req.query.id);
+
+  try {
+    const id = req.query.id;
+    const st = await firestore.collection('seance').doc(id);
+    const data = await st.get();
+
+    if (!data.exists) {
+      res.status(404).send('seance not found ');
+    } else {
+      res.json(data)
+    }
+  } catch (error) {
+    res.status(400).send(error.message);
+
+  }
+})
+app.get('/modifier_session', checkAuthenticated, async (req, res) => {
 
   //let usr = users.filter(user => user.isTutor === true && user.isActive === true && !session.tuteurs.includes(user.email) ? user : null);
+
+
   let usr = users.filter(user => user.isTutor === true && user.isActive === true ? user : null);
 
-  res.render('modifierSession.ejs', { title: 'Modifier séance', session: session, users: usr, error: '', layout: './layouts/login-layout' })
+
+  res.render('modifierSession.ejs', { title: 'Modifier séance', session: req.query.id, users: usr, error: '', layout: './layouts/login-layout' })
 })
 app.post('/modifier_session', checkAuthenticated, async (req, res) => {
   let session = seances.find(s => s.id == req.body.id);
@@ -305,6 +388,115 @@ app.post('/modifier_session', checkAuthenticated, async (req, res) => {
 })
 //end seance area
 
+//satisfaction area
+
+
+
+app.get('/questionnaire', async (req, res) => {
+  let idSeance = req.query.id;
+  res.render('addSatisfactionForm', {
+    title: 'Formulaire de satisfaction ', idSeance: idSeance, idUser: req.user.id, userName: req.user.name, typeOfUser: req.user.isTutor ? 'Tutor' : 'Stagaire', layout: './layouts/Default'
+  })
+
+})
+
+
+app.post('/questionnaire', async (req, res) => {
+
+  try {
+    const data = {
+      idSeance: req.body.idSeance,
+      idUser: req.body.idUser,
+      questions: req.body.questions
+    }
+    console.log(req.body);
+    const student = await firestore.collection('satisfaction').doc().set(data);
+    res.send('Record saved successfuly')
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+
+})
+app.post('/removeSatisfaction', async (req, res) => {
+  try {
+    const id = req.body.idForm;
+    console.log(id);
+    await firestore.collection('satisfaction').doc(id).delete();
+    res.redirect('/#satisfactionForms')
+  } catch (error) {
+    res.status(400).send(err.message);
+
+  }
+})
+
+app.get('/satisfaction', async (req, res) => {
+  try {
+    const forms = await firestore.collection('satisfaction');
+    const data = await forms.get();
+    const formsArray = [];
+    if (data.empty) {
+      res.status(404).send('No record found');
+    } else {
+      data.forEach(doc => {
+        console.log(doc.data());
+        const form = new Satisfaction(
+          doc.id,
+          doc.data().idSeance,
+          doc.data().idUser,
+          ...doc.data().questions
+
+        );
+
+        formsArray.push(form)
+
+      });
+
+      res.json(formsArray)
+    }
+  } catch (error) {
+    res.status(400).send(error.message);
+
+  }
+
+})
+
+//page repondre a une satisfaction
+app.get('/repondre_satisfaction', async (req, res) => {
+
+  res.render('repondre_satisfaction', { title: 'repondre a un formulaire de satisfaction', user: req.user, idForm: req.query.idForm, layout: './layouts/public_layout' });
+})
+
+app.get('/get_satisfaction_form', async (req, res) => {
+
+  try {
+    const id = req.query.idForm
+    const satisfaction = await firestore.collection('satisfaction').doc(id);
+    const data = await satisfaction.get();
+    console.log('idddd' + id);
+    if (!data.exists) {
+      res.status(404).send('satisfaction not found ');
+    } else {
+      res.json(data.data())
+    }
+  } catch (error) {
+    res.status(400).send(err.message);
+
+  }
+})
+
+app.post('/get_satisfaction_form', async (req, res) => {
+
+  try {
+    const data = req.body
+    const obj = await firestore.collection('repSatisfaction').doc().set(data);
+    res.send('Record saved successfuly')
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+})
+
+
+/// end satisfaction area
 
 //super admin
 randomPin = () => {
@@ -312,6 +504,10 @@ randomPin = () => {
   //console.log(val);
   return val;
 }
+
+
+
+
 pre_conf = async () => {
   const hashedPassword = await bcrypt.hash('123', 10)
   users.push({
@@ -366,7 +562,7 @@ pre_conf = async () => {
     dateCreation: new Date()
   })
   var seance = {
-    id: uuid.v4(),
+    idv4: uuid.v4(),
     sujet: 'cv',
     details: 'Le CV est l’élément déterminant d’une candidature, d’une carrière. Créez un CV simple et moderne en vous inspirant d’un modèle gratuit et de conseils de pro grâce à ce guide.',
     date_debut: new Date(),
@@ -428,6 +624,6 @@ pre_conf = async () => {
 
 pre_conf();
 
-const port = 5000
+const port = process.env.PORT
 
 app.listen(port, () => console.info(`App listening on port ${port}`))

@@ -1,9 +1,8 @@
-default_url = 'http://localhost:5000'
 function activate_desactivate_profile(e, cin) {
     e.preventDefault();
     $.ajax({
         type: "POST",
-        url: default_url + "/profile_activator",
+        url: "/profile_activator",
         data: { 'cin': cin },
         success: (res) => {
             id = "activateProfile_" + cin

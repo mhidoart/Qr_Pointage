@@ -71,7 +71,7 @@ class QrGenerator {
     //session qrCode 
     generateSessionQrCode(session) {
         let i, j;
-        console.log("start generating Qr codes .... (for " + session.id + " sessions)  ");
+        console.log("start generating Qr codes .... (for " + session.idv4 + " sessions)  ");
         var session_folder = path.join(this.qrRootFolder, '/sessions')
         this.createFolder(session_folder);
 
@@ -82,12 +82,12 @@ class QrGenerator {
         //le contenu du qr code ou l'information qui va etre le resulta apres avoir scanner se qrcode
         let data = new URL(this.myUrl)
         data.pathname = "seance_details"
-        data.searchParams.append('id', session.id);
+        data.searchParams.append('id', session.idv4);
 
         console.log(data);
-        this.saveQrCode(session_folder, session.id, data.href);
-        session.qrPath = '/qr/sessions/' + session.id + '.png';
-        console.log("end generating Qr codes for Session: " + session.id);
+        this.saveQrCode(session_folder, session.idv4, data.href);
+        session.qrPath = '/qr/sessions/' + session.idv4 + '.png';
+        console.log("end generating Qr codes for Session: " + session.idv4);
 
     }
 
